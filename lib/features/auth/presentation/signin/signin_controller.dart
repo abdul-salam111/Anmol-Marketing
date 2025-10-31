@@ -4,7 +4,6 @@ import 'package:anmol_marketing/features/auth/domain/usecases/signin_user_usecas
 import 'package:flutter/material.dart';
 import '../../../../core/barrel.dart';
 
-
 class SignInController extends GetxController {
   final SigninUserUsecase signinUserUsecase;
   final GetAppTokenUsecase getAppTokenUsecase;
@@ -109,7 +108,8 @@ class SignInController extends GetxController {
     final response = await signinUserUsecase.call(loginUserModel);
     response.fold(
       (error) async {
-        print(error.toString());
+        AppToasts.showErrorToast(Get.context!, error.toString());
+        isLoading.value = false;
       },
       (successResponse) async {
         await Future.wait([
@@ -117,6 +117,7 @@ class SignInController extends GetxController {
           SessionController().getUserfromSharedpref(),
         ]);
         await _saveUserCredentials();
+        isLoading.value = false;
         await Get.offAllNamed(AppRoutes.navbar);
         _resetForm();
       },

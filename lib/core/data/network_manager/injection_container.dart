@@ -42,6 +42,7 @@ Dio getDio() {
       },
 
       onError: (DioException e, ErrorInterceptorHandler handler) async {
+        
 
         printValue(tag: 'STATUS CODE:', "${e.response?.statusCode ?? ""}");
         printValue(tag: 'ERROR DATA:', "${e.response?.data ?? ""}");
@@ -55,7 +56,6 @@ Dio getDio() {
             e.type == DioExceptionType.receiveTimeout) {
           try {
             printValue(tag: "RETRY", "Retrying request with fresh Dio...");
-
             final retryDio = Dio(
               BaseOptions(
                 connectTimeout: const Duration(seconds: 10),
@@ -65,7 +65,6 @@ Dio getDio() {
                 responseType: ResponseType.json,
               ),
             );
-
             final cloneReq = await retryDio.request(
               e.requestOptions.path,
               data: e.requestOptions.data,

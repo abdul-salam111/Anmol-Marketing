@@ -5,10 +5,6 @@ AnmolMarketingDatabase? anmolMarketingDatabase;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  /////initialize local database
-  anmolMarketingDatabase = AnmolMarketingDatabase();
-  await anmolMarketingDatabase!.initializeDatabase();
-
   //check whethe the app is in testing mode or not
   if (await storage.testingToken != 'true') {
     await storage.setValues(StorageKeys.testingToken, "false");
@@ -28,7 +24,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppThemes.darkTheme,
       initialRoute: AppRoutes.splash,
       getPages: AppPages.routes,
-    initialBinding: AppBindings(),
+      initialBinding: AppBindings(),
     );
   }
 }
@@ -37,5 +33,9 @@ class AppBindings extends Bindings {
   @override
   void dependencies() {
     Get.put<DioHelper>(DioHelper(), permanent: true);
+    Get.put<AnmolMarketingDatabase>(
+      AnmolMarketingDatabase()..initializeDatabase(),
+      permanent: true,
+    );
   }
 }

@@ -6,37 +6,38 @@ class AppException implements Exception {
 
   @override
   String toString() {
-    return "$_prefix$_message";
+    final prefix = _prefix ?? '';
+    final message = _message ?? '';
+    return '$prefix$message';
   }
 }
 
 // No Internet Exception
 class NoInternetException extends AppException {
   NoInternetException([String? message])
-      : super(message, "No Internet Connection");
+    : super(message, "No Internet Connection");
 }
 
 // Unauthorized Exception
 class UnauthorizedException extends AppException {
   UnauthorizedException([String? message])
-      : super(message, "Unauthorized Request: ");
+    : super(message, "Unauthorized Request: ");
 }
+
 // Unauthorized Exception
 class AccountNotVerifiedException extends AppException {
-  AccountNotVerifiedException([String? message])
-      : super(message, "");
+  AccountNotVerifiedException([String? message]) : super(message, "");
 }
 
 // Request Timeout Exception
 class RequestTimeoutException extends AppException {
-  RequestTimeoutException([String? message])
-      : super(message, "");
+  RequestTimeoutException([String? message]) : super(message, "");
 }
 
 // Fetch Data Exception
 class FetchDataException extends AppException {
   FetchDataException([String? message])
-      : super(message, "Error Fetching Data: ");
+    : super(message, "Error Fetching Data: ");
 }
 
 // Bad Request Exception
@@ -52,13 +53,13 @@ class NotFoundException extends AppException {
 // Internal Server Error Exception
 class InternalServerErrorException extends AppException {
   InternalServerErrorException([String? message])
-      : super(message, "Internal Server Error: ");
+    : super(message, "Internal Server Error: ");
 }
 
 // Service Unavailable Exception
 class ServiceUnavailableException extends AppException {
   ServiceUnavailableException([String? message])
-      : super(message, "Service Unavailable: ");
+    : super(message, "Service Unavailable: ");
 }
 
 // Invalid Input Exception
@@ -70,6 +71,7 @@ class InvalidInputException extends AppException {
 class InvalidAppToken extends AppException {
   InvalidAppToken([String? message]) : super(message, "Invalid Input: ");
 }
+
 // Forbidden Exception
 class ForbiddenException extends AppException {
   ForbiddenException([String? message]) : super(message, "Forbidden Access: ");
@@ -78,11 +80,11 @@ class ForbiddenException extends AppException {
 // Too Many Requests Exception
 class TooManyRequestsException extends AppException {
   TooManyRequestsException([String? message])
-      : super(message, "Too Many Requests: ");
+    : super(message, "Too Many Requests: ");
 }
 
 // Method Not Allowed Exception
 class MethodNotAllowedException extends AppException {
   MethodNotAllowedException([String? message])
-      : super(message, "Method Not Allowed: ");
+    : super(message, "Method Not Allowed: ");
 }
