@@ -73,7 +73,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return GetRegistrationResponseModel.fromJson(response);
     } catch (error) {
-      throw AppException(error.toString());
+      rethrow;
     }
   }
 

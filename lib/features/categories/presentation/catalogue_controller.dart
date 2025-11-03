@@ -1,5 +1,5 @@
 import '../../../core/barrel.dart';
-import '../../../core/data/models/get_models/get_companies.dart';
+import '../../../core/shared/data/models/get_companies_model/get_companies_model.dart';
 
 /// Controller for managing the company catalogue
 /// Handles fetching, filtering, and searching companies

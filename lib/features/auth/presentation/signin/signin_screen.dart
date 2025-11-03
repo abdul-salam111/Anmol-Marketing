@@ -3,8 +3,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/barrel.dart';
-import '../signup/signup_controller.dart';
-import '../signup/signup_screen.dart';
 import 'signin_controller.dart';
 
 class LoginScreen extends GetView<SignInController> {
@@ -179,12 +177,7 @@ class LoginScreen extends GetView<SignInController> {
             ),
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-                Get.to(
-                  () => const SignupScreen(),
-                  binding: BindingsBuilder(() {
-                    Get.put(SignupController());
-                  }),
-                );
+                Get.toNamed(AppRoutes.signup);
               },
           ),
         ],

@@ -1,5 +1,6 @@
-import 'package:anmol_marketing/core/data/models/get_models/get_companies.dart';
+
 import '../../../../core/barrel.dart';
+import '../../../../core/shared/data/models/get_companies_model/get_companies_model.dart';
 
 class ViewProductsController extends GetxController {
   // Fetch products by company id from api

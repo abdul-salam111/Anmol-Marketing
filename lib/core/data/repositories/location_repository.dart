@@ -5,7 +5,7 @@ import 'package:anmol_marketing/core/local_cache/storage.dart';
 class LocationRepository {
   static final dioHelper = DioHelper();
 
-  static Future<List<LocationModel>> getLocations() async {
+  static Future<List<GetLocationModel>> getLocations() async {
     try {
       final response = await dioHelper.getApi(
         url: ApiKeys.getlocations,
@@ -15,7 +15,7 @@ class LocationRepository {
             : await storage.readValues(StorageKeys.appToken),
       );
       if (response is List) {
-        return response.map((e) => LocationModel.fromJson(e)).toList();
+        return response.map((e) => GetLocationModel.fromJson(e)).toList();
       } else {
         throw Exception("Expected a list but got ${response.runtimeType}");
       }

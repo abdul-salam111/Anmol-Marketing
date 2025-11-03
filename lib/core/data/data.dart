@@ -4,7 +4,7 @@ export 'network_manager/injection_container.dart';
 export 'network_manager/prints.dart';
 export '../../features/auth/data/models/get_login_response.dart';
 export '../../features/auth/data/models/login_model.dart';
-export 'models/get_models/get_location_model.dart';
+export '../shared/data/models/get_location_model/get_location_model.dart';
 export '../../features/products/data/models/get_products.dart';
 export 'local_database/database.dart';
 export 'local_database/database_helper.dart';

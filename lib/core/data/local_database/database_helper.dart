@@ -1,8 +1,10 @@
 import 'package:anmol_marketing/core/data/local_database/database.dart';
-import 'package:anmol_marketing/core/data/models/get_models/get_companies.dart';
+
 import 'package:anmol_marketing/features/products/data/models/get_products.dart';
 import 'package:anmol_marketing/core/data/models/post_models/create_order_for_local.dart';
 import 'package:flutter/foundation.dart';
+
+import '../../shared/data/models/get_companies_model/get_companies_model.dart';
 
 class DatabaseHelper {
   final AnmolMarketingDatabase _database = AnmolMarketingDatabase();

@@ -1,7 +1,7 @@
 import 'package:anmol_marketing/core/core.dart';
 import 'package:anmol_marketing/core/data/data.dart';
-import 'package:anmol_marketing/core/data/models/get_models/get_companies.dart';
 import 'package:anmol_marketing/core/local_cache/storage.dart';
+import '../../../../core/shared/data/models/get_companies_model/get_companies_model.dart';
 
 class CompaniesRepository {
   static final dioHelper = DioHelper();

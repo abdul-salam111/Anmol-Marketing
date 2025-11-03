@@ -1,9 +1,10 @@
 // ignore_for_file: file_names
 
-import 'package:anmol_marketing/core/data/models/get_models/get_companies.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/barrel.dart';
+import '../../../../core/shared/data/models/get_companies_model/get_companies_model.dart';
 import '../../../navbar/navbar_controller.dart';
 import '../../../orders/presentation/create_orders/create_order_controller.dart';
 
