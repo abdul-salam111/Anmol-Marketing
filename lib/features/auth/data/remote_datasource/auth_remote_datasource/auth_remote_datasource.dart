@@ -35,7 +35,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return GetAppToken.fromJson(response);
     } catch (error) {
-      throw AppException(error.toString());
+      rethrow;
     }
   }
 
@@ -54,7 +54,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
       return GetLoginResponse.fromJson(response);
     } catch (error) {
-      throw AppException(error.toString());
+      rethrow;
     }
   }
 

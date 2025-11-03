@@ -3,6 +3,7 @@ import 'package:anmol_marketing/features/auth/domain/usecases/send_otp_usecase.d
 import 'package:anmol_marketing/features/auth/domain/usecases/signin_user_usecase.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/barrel.dart';
+import '../../data/models/mobile_login_model.dart';
 
 class SignInController extends GetxController {
   final SigninUserUsecase signinUserUsecase;
@@ -35,22 +36,6 @@ class SignInController extends GetxController {
   /// `true` while an authentication request is in flight.
   final RxBool isLoading = false.obs;
 
-  /// Controls visibility of the “You are in testing mode” banner.
-  final RxBool showTestingModeText = false.obs;
-
-  /* -------------------------------------------------------------------------- */
-  /*                           Testing-Mode Variables                           */
-  /* -------------------------------------------------------------------------- */
-
-  /// Message shown when the app is in testing mode.
-  String testingModeText = 'You are in testing mode';
-
-  /// Number of taps within the current 3-second window.
-  int _tapCount = 0;
-
-  /// Timestamp of the first tap in the current window.
-  DateTime? _firstTapTime;
-
   /* -------------------------------------------------------------------------- */
   /*                              Lifecycle Hooks                               */
   /* -------------------------------------------------------------------------- */
@@ -71,11 +56,6 @@ class SignInController extends GetxController {
   /* -------------------------------------------------------------------------- */
   /*                              Private Helpers                               */
   /* -------------------------------------------------------------------------- */
-
-  /// Reads the stored testing-token and updates [showTestingModeText].
-  Future<void> _checkTestingModeStatus() async {
-    showTestingModeText.value = await storage.testingToken == 'true';
-  }
 
   /// Saves credentials for potential auto-login in the future.
   Future<void> _saveUserCredentials() async {
@@ -104,11 +84,49 @@ class SignInController extends GetxController {
       loginId: phoneNumberController.text.trim(),
       password: passwordController.text.trim(),
     );
-
-    final response = await signinUserUsecase.call(loginUserModel);
-    response.fold(
+    final loginRemoteResponse = await signinUserUsecase.call(loginUserModel);
+    await loginRemoteResponse.fold(
       (error) async {
-        AppToasts.showErrorToast(Get.context!, error.toString());
+        if (error is InvalidAppToken) {
+          final getAppTokenResponse = await getAppTokenUsecase.call(
+            MobileLoginModel(),
+          );
+          await getAppTokenResponse.fold((error) {}, (apptokenModel) async {
+            final apptoken = apptokenModel.organizations!
+                .map(
+                  (organization) => organization.branches!.isNotEmpty
+                      ? organization.branches!.first.authToken?.accessToken
+                      : "",
+                )
+                .first;
+            storage.setValues(StorageKeys.appToken, apptoken!);
+            await signInUser();
+          });
+        } else if (error is AccountNotVerifiedException) {
+          final otpResponse = await sendOtpUsecase.call(
+            phoneNumberController.text.trim(),
+          );
+          await otpResponse.fold(
+            (error) {
+              AppToasts.showErrorToast(Get.context!, error.toString());
+            },
+            (success) {
+              Get.toNamed(
+                AppRoutes.phoneVerification,
+                arguments: {
+                  "customerId": success["CustomerId"].toString(),
+                  "from": "signup",
+                },
+              );
+              AppToasts.showErrorToast(
+                Get.context!,
+                "Please verify your account!",
+              );
+            },
+          );
+        } else {
+          AppToasts.showErrorToast(Get.context!, error.toString());
+        }
         isLoading.value = false;
       },
       (successResponse) async {
@@ -128,6 +146,26 @@ class SignInController extends GetxController {
   /* -------------------------------------------------------------------------- */
   /*                      Testing-Mode Gesture Handling                         */
   /* -------------------------------------------------------------------------- */
+  /* -------------------------------------------------------------------------- */
+  /*                           Testing-Mode Variables                           */
+  /* -------------------------------------------------------------------------- */
+
+  /// Message shown when the app is in testing mode.
+  String testingModeText = 'You are in testing mode';
+
+  /// Number of taps within the current 3-second window.
+  int _tapCount = 0;
+
+  /// Timestamp of the first tap in the current window.
+  DateTime? _firstTapTime;
+
+  /// Controls visibility of the “You are in testing mode” banner.
+  final RxBool showTestingModeText = false.obs;
+
+  /// Reads the stored testing-token and updates [showTestingModeText].
+  Future<void> _checkTestingModeStatus() async {
+    showTestingModeText.value = await storage.testingToken == 'true';
+  }
 
   /// Handler for the 7-tap secret gesture.
   ///

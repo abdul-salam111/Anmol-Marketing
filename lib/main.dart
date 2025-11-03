@@ -4,7 +4,6 @@ import 'core/barrel.dart';
 AnmolMarketingDatabase? anmolMarketingDatabase;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   //check whethe the app is in testing mode or not
   if (await storage.testingToken != 'true') {
     await storage.setValues(StorageKeys.testingToken, "false");

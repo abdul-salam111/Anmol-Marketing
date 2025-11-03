@@ -10,10 +10,6 @@ class SigninUserUsecase implements UseCase<GetLoginResponse, LoginUserModel> {
   Future<Either<AppException, GetLoginResponse>> call(
     LoginUserModel params,
   ) async {
-    try {
-      return await repository.loginUser(loginUserModel: params);
-    } catch (e) {
-      return Left(AppException(e.toString()));
-    }
+    return await repository.loginUser(loginUserModel: params);
   }
 }

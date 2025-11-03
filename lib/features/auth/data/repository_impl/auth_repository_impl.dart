@@ -26,7 +26,7 @@ class AuthRepositoryImpl implements AbstractAuthRepository {
       );
       return Right(response);
     } catch (error) {
-      return Left(AppException(error.toString()));
+      return Left(error as AppException);
     }
   }
 
@@ -40,7 +40,7 @@ class AuthRepositoryImpl implements AbstractAuthRepository {
       );
       return Right(response);
     } catch (error) {
-      return Left(AppException(error.toString()));
+      return Left(error as AppException);
     }
   }
 
