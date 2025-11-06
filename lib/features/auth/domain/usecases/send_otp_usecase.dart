@@ -8,10 +8,6 @@ class SendOtpUsecase implements UseCase<dynamic, String> {
   SendOtpUsecase({required this.repository});
   @override
   Future<Either<AppException, dynamic>> call(String params) async {
-    try {
-      return await repository.sendOtp(mobile: params);
-    } catch (e) {
-      return Left(AppException(e.toString()));
-    }
+    return await repository.sendOtp(mobile: params);
   }
 }

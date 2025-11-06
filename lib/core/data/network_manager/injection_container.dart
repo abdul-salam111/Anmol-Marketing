@@ -42,13 +42,8 @@ Dio getDio() {
       },
 
       onError: (DioException e, ErrorInterceptorHandler handler) async {
-        
-
         printValue(tag: 'STATUS CODE:', "${e.response?.statusCode ?? ""}");
         printValue(tag: 'ERROR DATA:', "${e.response?.data ?? ""}");
-
-        
-
 
         // 👇 Retry once if it's a connection issue or timeout
         if (e.type == DioExceptionType.connectionTimeout ||

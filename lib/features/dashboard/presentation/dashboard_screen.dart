@@ -7,6 +7,7 @@ class DashboardScreen extends GetView<DashboardController> {
 
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       body: Column(
         children: [
@@ -74,9 +75,10 @@ class DashboardScreen extends GetView<DashboardController> {
                                       ? ""
                                       : DateFormat('d, MMMM yyyy').format(
                                           controller
-                                              .getLastOrderModel
-                                              .value
-                                              .docDate??DateTime.now(),
+                                                  .getLastOrderModel
+                                                  .value
+                                                  .docDate ??
+                                              DateTime.now(),
                                         ),
                                   style: context.bodySmallStyle!.copyWith(
                                     color: Colors.white,
@@ -125,7 +127,11 @@ class DashboardScreen extends GetView<DashboardController> {
                                 () => Text(
                                   controller.isLoading.value
                                       ? ""
-                                      : '${controller.getLastOrderModel.value.status}',
+                                      : controller
+                                                .getLastOrderModel
+                                                .value
+                                                .status ??
+                                            "",
                                   style: context.bodySmallStyle!.copyWith(
                                     color: Colors.green,
                                     fontSize: 12,

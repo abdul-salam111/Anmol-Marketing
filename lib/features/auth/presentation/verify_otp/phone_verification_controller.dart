@@ -1,13 +1,16 @@
+import 'package:anmol_marketing/features/auth/domain/usecases/verify_otp_usecase.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/barrel.dart';
 
 class PhoneVerificationController extends GetxController {
+  final VerifyOtpUsecase verifyOtpUsecase;
+  PhoneVerificationController({required this.verifyOtpUsecase});
   final TextEditingController pinController = TextEditingController();
   final FocusNode focusNode = FocusNode();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   OtpTimerButtonController controller = OtpTimerButtonController();
 
-  late String customerId;
+  late String customerId;    
   late String fromPage;
 
   RxBool isLoading = false.obs;
@@ -15,8 +18,12 @@ class PhoneVerificationController extends GetxController {
   Future verifyOpt() async {
     try {
       isLoading.value = true;
-      final bool isverified = await AuthRepository.verifyOtp(
+      final otpVerificationResponse = await verifyOtpUsecase.call(
         VerifyOtpModel(customerId: customerId, otp: pinController.text.trim()),
+      );
+      final bool isverified = otpVerificationResponse.fold(
+        (l) => false,
+        (r) => r,
       );
       isLoading.value = false;
       if (isverified && fromPage == "signup") {
@@ -74,7 +81,6 @@ class PhoneVerificationController extends GetxController {
         });
       } else {
         AppToasts.showSuccessToast(Get.context!, "Verified successfully");
-
         Future.delayed(const Duration(seconds: 1), () {
           Get.offAndToNamed(AppRoutes.changePassword, arguments: customerId);
         });
@@ -110,7 +116,6 @@ class PhoneVerificationController extends GetxController {
   void onClose() {
     pinController.dispose();
     focusNode.dispose();
-
     super.onClose();
   }
 }

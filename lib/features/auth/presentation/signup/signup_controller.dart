@@ -3,14 +3,18 @@ import 'package:fpdart/fpdart.dart';
 import '../../../../core/barrel.dart';
 import '../../../../core/shared/domain/usecases/location_usecases/get_location_usecase.dart';
 import '../../../../core/shared/domain/usecases/usecase.dart';
-import '../../data/models/mobile_login_model.dart';
+import '../../data/models/mobile_login_model/mobile_login_model.dart';
 import '../../domain/usecases/get_app_token_usecase.dart';
 import '../../domain/usecases/signup_user_usecase.dart';
 
 class SignupController extends GetxController {
+  // ================================
+  // DEPENDENCIES
+  // ================================
   final GetLocationUsecase getLocationUsecase;
   final GetAppTokenUsecase getAppTokenUsecase;
   final SignupUserUsecase signupUserUsecase;
+
   SignupController({
     required this.getLocationUsecase,
     required this.getAppTokenUsecase,
@@ -35,25 +39,21 @@ class SignupController extends GetxController {
       TextEditingController();
   final TextEditingController ownerNameController = TextEditingController();
 
-  /// Global key for form validation
   final GlobalKey<FormState> signupFormKey = GlobalKey<FormState>();
 
   // ================================
-  // LOCATION MANAGEMENT VARIABLES
+  // LOCATION MANAGEMENT
   // ================================
-
   final sectors = <Sector>[].obs;
   final selectedSector = Rxn<Sector>();
   final towns = <Town>[].obs;
   final selectedTown = Rxn<Town>();
-
-  /// ID of the selected location for API submission
   final selectedLocationId = 0.obs;
 
   // ================================
-  // UI STATE MANAGEMENT
+  // UI STATE
   // ================================
-  RxBool isLoading = false.obs;
+  final RxBool isLoading = false.obs;
 
   // ================================
   // LIFECYCLE METHODS
@@ -73,7 +73,6 @@ class SignupController extends GetxController {
   // ================================
   // LOCATION MANAGEMENT METHODS
   // ================================
-  /// Fetches available locations (sectors and towns) from the API
   Future<void> getLocations() async {
     try {
       final response = await getLocationUsecase.call(NoParams());
@@ -83,34 +82,38 @@ class SignupController extends GetxController {
       );
 
       final sectorList = buildSectorsFromJson(locationData);
-
       sectors.assignAll(sectorList);
     } on InvalidAppToken {
-      final response = await getAppTokenUsecase.call(MobileLoginModel());
-      response.fold((error) {}, (apptokenModel) async {
-        final apptoken = apptokenModel.organizations!
-            .map(
-              (organization) => organization.branches!.isNotEmpty
-                  ? organization.branches!.first.authToken?.accessToken
-                  : "",
-            )
-            .first;
-        storage.setValues(StorageKeys.appToken, apptoken!);
-        final response = await getLocationUsecase.call(NoParams());
-        final List<GetLocationModel> locationData = response.fold(
-          (error) => throw error,
-          (data) => data,
-        );
-        final sectorList = buildSectorsFromJson(locationData);
-        sectors.assignAll(sectorList);
-      });
+      await _handleInvalidAppToken();
     } catch (error) {
       AppToasts.showErrorToast(Get.context!, error.toString());
     }
   }
 
-  /// Handles sector selection by user
-  /// Updates towns list based on selected sector
+  Future<void> _handleInvalidAppToken() async {
+    final response = await getAppTokenUsecase.call(MobileLoginModel());
+
+    response.fold((error) {}, (apptokenModel) async {
+      final apptoken = apptokenModel.organizations!
+          .map(
+            (organization) => organization.branches!.isNotEmpty
+                ? organization.branches!.first.authToken?.accessToken
+                : "",
+          )
+          .first;
+
+      storage.setValues(StorageKeys.appToken, apptoken!);
+
+      final response = await getLocationUsecase.call(NoParams());
+      final List<GetLocationModel> locationData = response.fold(
+        (error) => throw error,
+        (data) => data,
+      );
+
+      final sectorList = buildSectorsFromJson(locationData);
+      sectors.assignAll(sectorList);
+    });
+  }
 
   void onSectorSelected(Sector sector) {
     selectedSector.value = sector;
@@ -119,8 +122,6 @@ class SignupController extends GetxController {
     townController.clear();
   }
 
-  /// Handles town selection by user
-  /// Updates the selected town and location ID for form submission
   void onTownSelected(Town town) {
     selectedTown.value = town;
     townController.text = town.name;
@@ -130,24 +131,19 @@ class SignupController extends GetxController {
   // ================================
   // USER REGISTRATION METHODS
   // ================================
-
-  /// Main method to create/register a new user
   Future<void> createUser() async {
+    if (!validateCompleteForm()) return;
+
     _setLoadingState(true);
+
     final registrationResponse = await _callRegistrationAPI();
-    await registrationResponse.fold(
-      (error) {
-        _handleRegistrationError(error);
-      },
-      (data) async {
-        _setLoadingState(false);
-        await _showSuccessDialog(registrationResponse);
-      },
+
+    registrationResponse.fold(
+      (error) => _handleRegistrationError(error),
+      (data) => _handleRegistrationSuccess(data),
     );
   }
 
-  /// Calls the registration API with user input data
-  /// Returns the registration response from the server
   Future<Either<AppException, GetRegistrationResponseModel>>
   _callRegistrationAPI() async {
     return await signupUserUsecase.call(
@@ -164,26 +160,38 @@ class SignupController extends GetxController {
     );
   }
 
-  /// Shows success dialog after successful registration
-  Future<void> _showSuccessDialog(dynamic registrationResponse) async {
+  Future<void> _handleRegistrationSuccess(
+    GetRegistrationResponseModel registrationResponse,
+  ) async {
+    _setLoadingState(false);
+    _clearFormFields();
+    await _showSuccessDialog(registrationResponse);
+  }
+
+  // ================================
+  // SUCCESS DIALOG METHODS
+  // ================================
+  Future<void> _showSuccessDialog(
+    GetRegistrationResponseModel registrationResponse,
+  ) async {
     Get.defaultDialog(
       title: "",
       content: _buildSuccessDialogContent(registrationResponse),
       barrierDismissible: false,
     );
 
-    // Auto-navigate after 7 seconds if dialog is still open
     _scheduleAutoNavigation(registrationResponse);
   }
 
-  /// Builds the content widget for the success dialog
-  Widget _buildSuccessDialogContent(dynamic registrationResponse) {
+  Widget _buildSuccessDialogContent(
+    GetRegistrationResponseModel registrationResponse,
+  ) {
     return Padding(
       padding: padding14,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Success icon
+          // Success Icon
           const CircleAvatar(
             backgroundColor: Colors.green,
             radius: 40,
@@ -191,8 +199,13 @@ class SignupController extends GetxController {
           ),
 
           const SizedBox(height: 20),
+
+          // Title
           Text("Verify Account!", style: Get.context!.headlineSmallStyle),
+
           const SizedBox(height: 10),
+
+          // Description
           Text(
             "Please, check your WhatsApp for verification code and verify your account.",
             textAlign: textAlignCenter,
@@ -203,7 +216,7 @@ class SignupController extends GetxController {
 
           const SizedBox(height: 20),
 
-          // Verify button
+          // Verify Button
           SizedBox(
             width: 100,
             child: CustomButton(
@@ -211,7 +224,7 @@ class SignupController extends GetxController {
               radius: 10,
               text: "Verify",
               onPressed: () {
-                Get.back(); // Close dialog
+                Get.back();
                 navigateToVerification(registrationResponse);
               },
             ),
@@ -221,89 +234,40 @@ class SignupController extends GetxController {
     );
   }
 
-  /// Schedules automatic navigation to verification screen after 7 seconds
-  void _scheduleAutoNavigation(dynamic registrationResponse) {
+  void _scheduleAutoNavigation(
+    GetRegistrationResponseModel registrationResponse,
+  ) {
     Future.delayed(const Duration(seconds: 7), () {
-      _clearFormFields();
-      // Check if dialog is still open before auto-navigating
       if (Get.isDialogOpen ?? false) {
-        Get.back(); // Close dialog
+        Get.back();
         navigateToVerification(registrationResponse);
       }
     });
   }
 
-  /// Navigates to phone verification screen with registration data
-  void navigateToVerification(dynamic registrationResponse) {
+  void navigateToVerification(
+    GetRegistrationResponseModel registrationResponse,
+  ) {
     Get.toNamed(
       AppRoutes.phoneVerification,
       arguments: {
         "customerId": registrationResponse.customerId.toString(),
         "from": "signup",
-      }, // Customer ID for verification
+      },
     );
   }
 
   // ================================
-  // UTILITY METHODS
-  // ================================
-  void _setLoadingState(bool loading) {
-    isLoading.value = loading;
-  }
-
-  /// Handles registration errors by stopping loading and showing error message
-  void _handleRegistrationError(dynamic error) {
-    _setLoadingState(false);
-    AppToasts.showErrorToast(Get.context!, error.toString());
-  }
-
-  /// Clears all form fields after successful registration
-  void _clearFormFields() {
-    whatsAppNumberController.clear();
-    passwordController.clear();
-    pharmacyNameController.clear();
-    pharmacyOwnerNameController.clear();
-    workPhoneController.clear();
-    sectorController.clear();
-    townController.clear();
-    postalAddressController.clear();
-    licenseNumberController.clear();
-    licenseExpiryDateController.clear();
-    ownerNameController.clear();
-    selectedTown.value = null;
-    selectedSector.value = null;
-    selectedLocationId.value = 0;
-  }
-
-  /// Disposes all text controllers to prevent memory leaks
-  void _disposeAllControllers() {
-    whatsAppNumberController.dispose();
-    passwordController.dispose();
-    pharmacyNameController.dispose();
-    pharmacyOwnerNameController.dispose();
-    workPhoneController.dispose();
-    sectorController.dispose();
-    townController.dispose();
-    postalAddressController.dispose();
-    licenseNumberController.dispose();
-    licenseExpiryDateController.dispose();
-    ownerNameController.dispose();
-  }
-
-  // ================================
-  // VALIDATION METHODS (Optional additions)
+  // VALIDATION METHODS
   // ================================
   bool isFormValid() {
     return signupFormKey.currentState?.validate() ?? false;
   }
 
-  /// Validates if location selection is complete
-  /// Returns true if both sector and town are selected
   bool isLocationSelectionComplete() {
     return selectedSector.value != null && selectedTown.value != null;
   }
 
-  /// Validates the entire signup form including location selection
   bool validateCompleteForm() {
     if (!isFormValid()) {
       AppToasts.showErrorToast(Get.context!, "Please fill all required fields");
@@ -316,5 +280,49 @@ class SignupController extends GetxController {
     }
 
     return true;
+  }
+
+  // ================================
+  // UTILITY METHODS
+  // ================================
+  void _setLoadingState(bool loading) {
+    isLoading.value = loading;
+  }
+
+  void _handleRegistrationError(dynamic error) {
+    _setLoadingState(false);
+    AppToasts.showErrorToast(Get.context!, error.toString());
+  }
+
+  void _clearFormFields() {
+    whatsAppNumberController.clear();
+    passwordController.clear();
+    pharmacyNameController.clear();
+    pharmacyOwnerNameController.clear();
+    workPhoneController.clear();
+    sectorController.clear();
+    townController.clear();
+    postalAddressController.clear();
+    licenseNumberController.clear();
+    licenseExpiryDateController.clear();
+    ownerNameController.clear();
+
+    selectedTown.value = null;
+    selectedSector.value = null;
+    selectedLocationId.value = 0;
+  }
+
+  void _disposeAllControllers() {
+    whatsAppNumberController.dispose();
+    passwordController.dispose();
+    pharmacyNameController.dispose();
+    pharmacyOwnerNameController.dispose();
+    workPhoneController.dispose();
+    sectorController.dispose();
+    townController.dispose();
+    postalAddressController.dispose();
+    licenseNumberController.dispose();
+    licenseExpiryDateController.dispose();
+    ownerNameController.dispose();
   }
 }

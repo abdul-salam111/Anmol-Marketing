@@ -64,12 +64,12 @@ class ServiceUnavailableException extends AppException {
 
 // Invalid Input Exception
 class InvalidInputException extends AppException {
-  InvalidInputException([String? message]) : super(message, "Invalid Input: ");
+  InvalidInputException([String? message]) : super(message, "");
 }
 
 // Invalid Input Exception
 class InvalidAppToken extends AppException {
-  InvalidAppToken([String? message]) : super(message, "Invalid Input: ");
+  InvalidAppToken([String? message]) : super(message, "Invalid App Token");
 }
 
 // Forbidden Exception

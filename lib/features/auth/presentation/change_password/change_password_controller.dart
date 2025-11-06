@@ -1,12 +1,15 @@
 import 'package:anmol_marketing/core/core.dart';
-import 'package:anmol_marketing/core/data/data.dart';
-import 'package:anmol_marketing/features/auth/data/models/change_password_request_model.dart';
+import 'package:anmol_marketing/features/auth/data/models/change_password_request_model/change_password_request_model.dart';
+import 'package:anmol_marketing/features/auth/domain/usecases/change_password_usecase.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '../../../../core/routes/app_routes.dart';
 
 class ChangePasswordController extends GetxController {
+  final ChangePasswordUsecase changePasswordUsecase;
+  ChangePasswordController({required this.changePasswordUsecase});
+
   final newPassword = TextEditingController();
   final confirmPassword = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -14,27 +17,31 @@ class ChangePasswordController extends GetxController {
   final RxBool isLoading = false.obs;
 
   Future<void> changePassword() async {
-    try {
-      isLoading.value = true;
+    isLoading.value = true;
 
-      await AuthRepository.changePassword(
-        changePassword: ChangePasswordRequestModel(
-          password: newPassword.text.trim(),
-          confirmPassword: confirmPassword.text.trim(),
-          customerId: int.parse(Get.arguments),
-        ),
-      );
-
-      isLoading.value = false;
-      AppToasts.showSuccessToast(Get.context!, "Password changed successfully");
-
-      Future.delayed(const Duration(seconds: 1), () {
-        Get.offAllNamed(AppRoutes.login);
-      });
-    } catch (e) {
-      isLoading.value = false;
-      AppToasts.showErrorToast(Get.context!, e.toString());
-    }
+    final response = await changePasswordUsecase.call(
+      ChangePasswordRequestModel(
+        password: newPassword.text.trim(),
+        confirmPassword: confirmPassword.text.trim(),
+        customerId: int.parse(Get.arguments),
+      ),
+    );
+    response.fold(
+      (error) {
+        AppToasts.showErrorToast(Get.context!, error.toString());
+        isLoading.value = false;
+      },
+      (data) {
+        isLoading.value = false;
+        AppToasts.showSuccessToast(
+          Get.context!,
+          "Password changed successfully",
+        );
+        Future.delayed(const Duration(seconds: 1), () {
+          Get.offAllNamed(AppRoutes.login);
+        });
+      },
+    );
   }
 
   @override

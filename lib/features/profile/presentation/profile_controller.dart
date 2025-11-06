@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/barrel.dart';
-import '../../auth/data/models/change_password_request_model.dart';
+import '../../auth/data/models/change_password_request_model/change_password_request_model.dart';
 
 class ProfileController extends GetxController {
   final newPassword = TextEditingController();

@@ -1,8 +1,8 @@
 import 'package:anmol_marketing/core/core.dart';
 import 'package:anmol_marketing/core/data/data.dart';
-import 'package:anmol_marketing/features/auth/data/models/get_app_token_model.dart';
-import 'package:anmol_marketing/features/auth/data/models/change_password_request_model.dart';
-import 'package:anmol_marketing/features/auth/data/models/mobile_login_model.dart';
+import 'package:anmol_marketing/features/auth/data/models/get_app_token_model/get_app_token_model.dart';
+import 'package:anmol_marketing/features/auth/data/models/change_password_request_model/change_password_request_model.dart';
+import 'package:anmol_marketing/features/auth/data/models/mobile_login_model/mobile_login_model.dart';
 import 'package:anmol_marketing/core/local_cache/storage.dart';
 
 class AuthRepository {

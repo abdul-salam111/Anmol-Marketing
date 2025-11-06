@@ -197,23 +197,25 @@ class DioHelper {
           case 4001:
             throw InvalidInputException("The entered OTP is incorrect!");
           case 4002:
-            throw InvalidInputException("Invalid Input");
+            throw InvalidInputException("Login id is not valid!");
           case 6001:
-            throw InvalidInputException("The user already exist!");
+            throw InvalidInputException(
+              "User, with this phone number already exist!",
+            );
           case 4003:
-            throw InvalidInputException("Invalid Mobile Number");
+            throw InvalidInputException("The entered phone is invalid!");
           case 4004:
-            throw AccountNotVerifiedException("Otp Not Verified");
+            throw AccountNotVerifiedException("Please, verify your Account!");
           case 4005:
             throw UnauthorizedException("Customer not approved");
           case 4006:
             throw TimeoutException("Otp Expired!");
           case 4007:
-            throw InvalidInputException("Invalid Otp!");
+            throw InvalidInputException("The entered otp is invalid!");
           case 4008:
-            throw NotFoundException("Customer not found");
+            throw NotFoundException("Customer account does not exist!");
           case 4009:
-            throw InvalidInputException("Password Do Not Match");
+            throw InvalidInputException("Your entered password is incorrect!");
           case 4010:
             throw InvalidInputException("InValid Customer");
           case 4011:

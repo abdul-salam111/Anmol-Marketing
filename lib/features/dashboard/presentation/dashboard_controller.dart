@@ -27,7 +27,7 @@ class DashboardController extends GetxController {
       await SessionController().getUserfromSharedpref();
       getLastOrderModel.value = await OrdersRepository.getLastOrder();
       isLoading.value = false;
-    }  catch (error) {
+    } catch (error) {
       isLoading.value = false;
     }
   }

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:anmol_marketing/features/auth/data/models/get_login_response.dart';
+import 'package:anmol_marketing/features/auth/data/models/get_login_response/get_login_response_model.dart';
 import 'package:anmol_marketing/core/local_cache/storage.dart';
 
 class SessionController {
